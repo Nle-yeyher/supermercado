@@ -1,0 +1,351 @@
+
+
+DELIMITER //
+CREATE PROCEDURE InsertarPaciente(
+    IN p_nombre VARCHAR(100),
+    IN p_apellido VARCHAR(100),
+    IN p_fecha_nacimiento DATE,
+    IN p_genero ENUM('M', 'F'),
+    IN p_direccion TEXT,
+    IN p_telefono VARCHAR(20),
+    IN p_correo VARCHAR(100)
+)
+BEGIN
+    INSERT INTO pacientes (nombre, apellido, fecha_nacimiento, genero, direccion, telefono, correo)
+    VALUES (p_nombre, p_apellido, p_fecha_nacimiento, p_genero, p_direccion, p_telefono, p_correo);
+END //
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+DELIMITER //
+CREATE PROCEDURE InsertarMedico(
+    IN p_nombre VARCHAR(100),
+    IN p_apellido VARCHAR(100),
+    IN p_especialidad VARCHAR(100),
+    IN p_telefono VARCHAR(20),
+    IN p_correo VARCHAR(100)
+)
+BEGIN
+    INSERT INTO medicos (nombre, apellido, especialidad, telefono, correo)
+    VALUES (p_nombre, p_apellido, p_especialidad, p_telefono, p_correo);
+END //
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+DELIMITER //
+CREATE PROCEDURE AgendarCita(
+    IN p_id_paciente INT,
+    IN p_id_medico INT,
+    IN p_fecha DATE,
+    IN p_hora TIME,
+    IN p_estado ENUM('pendiente', 'completada', 'cancelada')
+)
+BEGIN
+    INSERT INTO citas (id_paciente, id_medico, fecha, hora, estado)
+    VALUES (p_id_paciente, p_id_medico, p_fecha, p_hora, p_estado);
+END //
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+DELIMITER //
+CREATE PROCEDURE RegistrarTratamiento(
+    IN p_id_paciente INT,
+    IN p_id_medico INT,
+    IN p_diagnostico TEXT,
+    IN p_fecha DATE
+)
+BEGIN
+    INSERT INTO tratamientos (id_paciente, id_medico, diagnostico, fecha)
+    VALUES (p_id_paciente, p_id_medico, p_diagnostico, p_fecha);
+END //
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+DELIMITER //
+CREATE PROCEDURE AsignarMedicamento(
+    IN p_id_paciente INT,
+    IN p_id_medicamento INT,
+    IN p_dosis VARCHAR(50),
+    IN p_frecuencia VARCHAR(50),
+    IN p_duracion VARCHAR(50)
+)
+BEGIN
+    INSERT INTO medicamentos (id_paciente, id_medicamento, dosis, frecuencia, duracion)
+    VALUES (p_id_paciente, p_id_medicamento, p_dosis, p_frecuencia, p_duracion);
+END //
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+DELIMITER //
+CREATE PROCEDURE ActualizarPaciente(
+    IN p_id_paciente INT,
+    IN p_nombre VARCHAR(100),
+    IN p_apellido VARCHAR(100),
+    IN p_fecha_nacimiento DATE,
+    IN p_genero ENUM('M', 'F'),
+    IN p_direccion TEXT,
+    IN p_telefono VARCHAR(20),
+    IN p_correo VARCHAR(100)
+)
+BEGIN
+    UPDATE pacientes 
+    SET nombre = p_nombre, 
+        apellido = p_apellido, 
+        fecha_nacimiento = p_fecha_nacimiento, 
+        genero = p_genero, 
+        direccion = p_direccion, 
+        telefono = p_telefono, 
+        correo = p_correo
+    WHERE id_paciente = p_id_paciente;
+END //
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+DELIMITER //
+CREATE PROCEDURE EliminarCita(IN p_id_cita INT)
+BEGIN
+    DELETE FROM citas WHERE id_cita = p_id_cita;
+END //
+DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE ObtenerCitasMedico(
+    IN p_id_medico INT,
+    IN p_fecha_inicio DATE,
+    IN p_fecha_fin DATE
+)
+BEGIN
+    SELECT * FROM citas 
+    WHERE id_medico = p_id_medico 
+    AND fecha BETWEEN p_fecha_inicio AND p_fecha_fin;
+END //
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+DELIMITER //
+CREATE PROCEDURE ObtenerHistorialPaciente(IN p_id_paciente INT)
+BEGIN
+    SELECT * FROM historias_clinicas 
+    WHERE id_paciente = p_id_paciente 
+    ORDER BY fecha DESC;
+END //
+DELIMITER ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+DELIMITER //
+CREATE PROCEDURE ResumenFacturacionMedico(
+    IN p_id_medico INT
+)
+BEGIN
+    SELECT m.id_medico, m.nombre, m.apellido, COUNT(f.id_factura) AS total_facturas, SUM(f.total) AS monto_total
+    FROM medicos m
+    LEFT JOIN facturas f ON m.id_medico = f.id_medico
+    WHERE m.id_medico = p_id_medico
+    GROUP BY m.id_medico;
+END //
+DELIMITER ;
